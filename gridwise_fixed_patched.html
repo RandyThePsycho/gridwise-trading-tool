@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Grid Trading Calculator – Simulate Profits, Fees & Risks | GridWise</title>
+<meta name="description" content="Free crypto grid trading calculator. Simulate grid profits after fees, slippage, and funding rates. Compare Grid vs HODL vs DCA strategies. Understand your risks before trading.">
+<meta property="og:title" content="Crypto Grid Trading Calculator – GridWise">
+<meta property="og:description" content="Simulate grid trading profits, fees, slippage and risks for free. Compare with HODL and DCA strategies.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://gridwisecalc.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+/* ============================================================
+   CSS RESET & VARIABLES
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Colors */
+  --navy-950: #060a14;
+  --navy-900: #0a1024;
+  --navy-800: #111a36;
+  --navy-700: #1a2748;
+  --navy-100: #cdd5e5;
+  --navy-50: #eef1f7;
+
+  --surface: #f7f8fb;
+  --surface-card: #ffffff;
+  --surface-hover: #f0f2f6;
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --text-on-dark: #e2e8f0;
+  --text-on-dark-muted: #94a3b8;
+
+  --green-500: #10b981;
+  --green-600: #059669;
+  --green-50: #ecfdf5;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-50: #fef2f2;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --amber-50: #fffbeb;
+  --blue-500: #3b82f6;
+  --blue-50: #eff6ff;
+  --purple-500: #8b5cf6;
+  --orange-500: #f97316;
+
+  --border: #e5e7eb;
+  --border-focus: #6366f1;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+
+  --max-width: 1200px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--surface);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   LAYOUT UTILITIES
+   ============================================================ */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header {
+  background: var(--navy-950);
+  border-bottom: 1px solid var(--navy-800);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+.logo span { color: var(--green-500); }
+.header-nav { display: flex; gap: 24px; }
+.header-nav a {
+  color: var(--text-on-dark-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.header-nav a:hover { color: #fff; }
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.hero {
+  background: linear-gradient(170deg, var(--navy-950) 0%, var(--navy-900) 60%, var(--navy-800) 100%);
+  padding: 72px 0 56px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--navy-800) 1px, transparent 1px),
+    linear-gradient(90deg, var(--navy-800) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.25;
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.hero h1 .accent { color: var(--green-500); }
+.hero-sub {
+  font-size: clamp(16px, 2.5vw, 20px);
+  color: var(--text-on-dark-muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+  max-width: 600px;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-500);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  border: none;
+  cursor: pointer;
+}
+.hero-cta:hover { background: var(--green-600); transform: translateY(-1px); }
+
+/* Educational banner */
+.edu-banner {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-top: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.edu-banner .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.edu-banner p {
+  font-size: 13px;
+  color: var(--amber-500);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   CALCULATOR SECTION
+   ============================================================ */
+.calc-section {
+  padding: 56px 0;
+  background: var(--surface);
+}
+.calc-grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* --- Input Panel --- */
+.input-panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 80px;
+}
+.input-panel h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+/* Preset buttons */
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.preset-btn {
+  padding: 10px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.preset-btn:hover {
+  border-color: var(--green-500);
+  color: var(--green-600);
+  background: var(--green-50);
+}
+.preset-btn.active {
+  border-color: var(--green-500);
+  background: var(--green-50);
+  color: var(--green-600);
+}
+
+/* Form groups */
+.form-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.form-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.form-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.field .hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.field input,
+.field select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+.field input.error { border-color: var(--red-500); }
+.field .error-msg {
+  font-size: 12px;
+  color: var(--red-500);
+  margin-top: 3px;
+  display: none;
+}
+.field .error-msg.visible { display: block; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Advanced toggle */
+.adv-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--blue-500);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.adv-toggle .arrow { transition: transform 0.2s; }
+.adv-toggle.open .arrow { transform: rotate(180deg); }
+.adv-fields { display: none; }
+.adv-fields.open { display: block; }
+
+/* Funding fields conditional */
+.funding-fields { display: none; }
+.funding-fields.visible { display: block; }
+
+/* Calculate button */
+.calc-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  background: var(--green-500);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+.calc-btn:hover { background: var(--green-600); }
+.calc-btn:active { transform: scale(0.985); }
+
+/* --- Output Panel --- */
+.output-panel {
+  display: none; /* hidden until first calculation */
+}
+.output-panel.visible { display: block; }
+
+/* Range breakout warning */
+.breakout-warning {
+  display: none;
+  background: var(--red-50);
+  border: 1px solid var(--red-500);
+  border-left: 4px solid var(--red-500);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+.breakout-warning.below-range,
+.breakout-warning.above-range { display: block; }
+.breakout-warning .bw-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--red-600);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.breakout-warning p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Summary cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.summary-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.summary-card .sc-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.summary-card .sc-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.summary-card .sc-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.sc-positive { color: var(--green-500); }
+.sc-negative { color: var(--red-500); }
+.sc-neutral { color: var(--text-primary); }
+
+/* Risk badge on summary card */
+.risk-badge-inline {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Detailed results grid */
+.results-details {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.results-details h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.detail-item:nth-child(odd) { background: var(--surface); }
+.detail-item .di-label { color: var(--text-secondary); }
+.detail-item .di-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Chart containers */
+.chart-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.chart-card h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.chart-wrap {
+  position: relative;
+  height: 300px;
+}
+.chart-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-style: italic;
+}
+.strategy-verdict {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.strategy-verdict strong { color: var(--text-primary); }
+
+/* Risk assessment card */
+.risk-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.risk-card h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.risk-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.risk-score-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 3px solid;
+}
+.risk-score-circle .score-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1;
+}
+.risk-score-circle .score-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+.risk-factors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.risk-factor-tag {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+
+/* AI explanation */
+.ai-explanation {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 16px;
+}
+.ai-explanation .ai-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-explanation .ai-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  white-space: pre-line;
+}
+.cycle-reminder {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--amber-50);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--amber-600);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   HOW IT WORKS
+   ============================================================ */
+.how-section {
+  padding: 56px 0;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border);
+}
+.section-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: -0.5px;
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.how-step {
+  text-align: center;
+}
+.how-step .step-num {
+  width: 48px;
+  height: 48px;
+  background: var(--navy-900);
+  color: var(--green-500);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+.how-step h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.how-step p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq-section {
+  padding: 56px 0;
+  background: var(--surface);
+}
+.faq-list {
+  max-width: 780px;
+  margin: 0 auto;
+}
+.faq-list details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  background: var(--surface-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.faq-list summary {
+  padding: 16px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.15s;
+}
+.faq-list summary:hover { background: var(--surface-hover); }
+.faq-list summary::after {
+  content: '+';
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: 12px;
+  transition: transform 0.2s;
+}
+.faq-list details[open] summary::after {
+  content: '−';
+}
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list .faq-answer {
+  padding: 0 20px 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ============================================================
+   DISCLAIMER
+   ============================================================ */
+.disclaimer-section {
+  padding: 48px 0;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border);
+}
+.disclaimer-section h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.disclaimer-content {
+  max-width: 780px;
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+.disclaimer-content p { margin-bottom: 12px; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer {
+  background: var(--navy-950);
+  padding: 28px 0;
+  text-align: center;
+}
+.site-footer p {
+  font-size: 13px;
+  color: var(--text-on-dark-muted);
+  line-height: 1.7;
+}
+.site-footer a {
+  color: var(--text-on-dark-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.site-footer a:hover { color: #fff; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .calc-grid {
+    grid-template-columns: 1fr;
+  }
+  .input-panel {
+    position: static;
+  }
+  .summary-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .how-steps {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 48px 0 36px; }
+  .presets { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .preset-btn { padding: 8px 4px; font-size: 11px; }
+  .summary-cards { gap: 10px; }
+  .summary-card { padding: 14px; }
+  .summary-card .sc-value { font-size: 20px; }
+  .chart-wrap { height: 240px; }
+  .header-nav { gap: 14px; }
+  .header-nav a { font-size: 12px; }
+  .field-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="#" class="logo">Grid<span>Wise</span></a>
+    <nav class="header-nav">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#faq">FAQ</a>
+      <a href="#disclaimer">Disclaimer</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================
+     HERO SECTION
+     ============================================================ -->
+<section class="hero">
+  <div class="container hero-content">
+    <h1>Crypto Grid Trading<br><span class="accent">Calculator</span></h1>
+    <p class="hero-sub">Simulate your grid trading profits after fees, slippage, and funding rates. Compare strategies. Understand risks — before you trade.</p>
+    <a href="#calculator" class="hero-cta">Start Calculating ↓</a>
+    <div class="edu-banner">
+      <span class="icon">⚠️</span>
+      <p><strong>Educational Tool Only</strong> — This is not a return prediction. Grid profit is shown per completed full cycle. This tool does not provide financial advice, predict market prices, or connect to any exchange.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CALCULATOR SECTION
+     ============================================================ -->
+<section class="calc-section" id="calculator">
+  <div class="container">
+    <div class="calc-grid">
+
+      <!-- === INPUT PANEL === -->
+      <div class="input-panel">
+        <h2>Parameters</h2>
+
+        <!-- Presets -->
+        <div class="presets">
+          <button class="preset-btn" data-preset="conservative" type="button">Conservative</button>
+          <button class="preset-btn" data-preset="moderate" type="button">Moderate</button>
+          <button class="preset-btn" data-preset="aggressive" type="button">Aggressive</button>
+        </div>
+
+        <!-- Basic Parameters -->
+        <div class="form-section">
+          <div class="form-section-title">Basic Parameters</div>
+
+          <div class="field">
+            <label for="tradingPair">Trading Pair</label>
+            <div class="hint">Label only — does not affect calculations</div>
+            <input type="text" id="tradingPair" value="ETH / USDT" placeholder="e.g. BTC/USDT">
+          </div>
+
+          <div class="field">
+            <label for="investment">Investment Amount ($)</label>
+            <div class="hint">Total capital allocated to the grid bot</div>
+            <input type="number" id="investment" value="1000" min="1" max="10000000" step="any" inputmode="decimal">
+            <div class="error-msg" id="err-investment"></div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="lowerPrice">Lower Price ($)</label>
+              <div class="hint">Grid range bottom</div>
+              <input type="number" id="lowerPrice" value="2800" min="0.0001" step="any" inputmode="decimal">
+              <div class="error-msg" id="err-lowerPrice"></div>
+            </div>
+            <div class="field">
+              <label for="upperPrice">Upper Price ($)</label>
+              <div class="hint">Grid range top</div>
+              <input type="number" id="upperPrice" value="3500" min="0.0001" step="any" inputmode="decimal">
+              <div class="error-msg" id="err-upperPrice"></div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="currentPrice">Current Price ($)</label>
+              <div class="hint">May be outside range</div>
+              <input type="number" id="currentPrice" value="3100" min="0.0001" step="any" inputmode="decimal">
+              <div class="error-msg" id="err-currentPrice"></div>
+            </div>
+            <div class="field">
+              <label for="endPrice">End Price ($)</label>
+              <div class="hint">Assumed price at end of period</div>
+              <input type="number" id="endPrice" value="3100" min="0.0001" step="any" inputmode="decimal">
+              <div class="error-msg" id="err-endPrice"></div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="gridCount">Number of Grids</label>
+              <div class="hint">2 – 500</div>
+              <input type="number" id="gridCount" value="30" min="2" max="500" step="1" inputmode="numeric">
+              <div class="error-msg" id="err-gridCount"></div>
+            </div>
+            <div class="field">
+              <label for="gridType">Grid Type</label>
+              <div class="hint">Spacing method</div>
+              <select id="gridType">
+                <option value="Arithmetic" selected>Arithmetic</option>
+                <option value="Geometric">Geometric</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fee & Cost Parameters -->
+        <div class="form-section">
+          <div class="form-section-title">Fees &amp; Costs</div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="makerFee">Maker Fee (%)</label>
+              <div class="hint">Limit order fee</div>
+              <input type="number" id="makerFee" value="0.10" min="0" max="5" step="0.01" inputmode="decimal">
+              <div class="error-msg" id="err-makerFee"></div>
+            </div>
+            <div class="field">
+              <label for="takerFee">Taker Fee (%)</label>
+              <div class="hint">Market order fee</div>
+              <input type="number" id="takerFee" value="0.10" min="0" max="5" step="0.01" inputmode="decimal">
+              <div class="error-msg" id="err-takerFee"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="slippage">Estimated Slippage (%)</label>
+            <div class="hint">Price deviation on execution. Typical: 0.01%–0.10%</div>
+            <input type="number" id="slippage" value="0.05" min="0" max="5" step="0.01" inputmode="decimal">
+            <div class="error-msg" id="err-slippage"></div>
+          </div>
+
+          <div class="field">
+            <label for="tradingMode">Trading Mode</label>
+            <div class="hint">Spot = no funding cost; Perpetual = funding rate applies</div>
+            <select id="tradingMode">
+              <option value="Spot" selected>Spot</option>
+              <option value="Perpetual">Perpetual</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Advanced Parameters (collapsible) -->
+        <div class="form-section">
+          <button class="adv-toggle" type="button" id="advToggle">
+            <span class="arrow">▼</span> Advanced Settings
+          </button>
+          <div class="adv-fields" id="advFields">
+
+            <div class="funding-fields" id="fundingFields">
+              <div class="field-row">
+                <div class="field">
+                  <label for="fundingRate">Avg Funding Rate (%)</label>
+                  <div class="hint">Per settlement. Typical: 0.01%</div>
+                  <input type="number" id="fundingRate" value="0.01" min="-0.5" max="0.5" step="0.001" inputmode="decimal">
+                  <div class="error-msg" id="err-fundingRate"></div>
+                </div>
+                <div class="field">
+                  <label for="fundingFreq">Settlements / Day</label>
+                  <div class="hint">Usually 3 (every 8h)</div>
+                  <select id="fundingFreq">
+                    <option value="3" selected>3 (every 8h)</option>
+                    <option value="1">1 (daily)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="duration">Estimated Duration (days)</label>
+                <div class="hint">1 – 365 days</div>
+                <input type="number" id="duration" value="30" min="1" max="365" step="1" inputmode="numeric">
+                <div class="error-msg" id="err-duration"></div>
+              </div>
+              <div class="field">
+                <label for="dcaFrequency">DCA Frequency</label>
+                <div class="hint">For DCA comparison</div>
+                <select id="dcaFrequency">
+                  <option value="Daily" selected>Daily</option>
+                  <option value="Weekly">Weekly</option>
+                  <option value="Monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="calc-btn" type="button" id="calcBtn">Calculate Results</button>
+      </div>
+
+      <!-- === OUTPUT PANEL === -->
+      <div class="output-panel" id="outputPanel">
+
+        <!-- Range Breakout Warning -->
+        <div class="breakout-warning" id="breakoutWarning">
+          <div class="bw-title">⚠️ <span id="bwTitle">Range Breakout Warning</span></div>
+          <p id="bwText"></p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+          <div class="summary-card">
+            <div class="sc-label">Gross Profit</div>
+            <div class="sc-value sc-neutral" id="scGross">—</div>
+            <div class="sc-sub">Per full cycle</div>
+          </div>
+          <div class="summary-card">
+            <div class="sc-label">Total Costs</div>
+            <div class="sc-value sc-negative" id="scCosts">—</div>
+            <div class="sc-sub">Fees + Slippage + Funding</div>
+          </div>
+          <div class="summary-card">
+            <div class="sc-label">Net Profit</div>
+            <div class="sc-value" id="scNet">—</div>
+            <div class="sc-sub" id="scNetSub">Per full cycle</div>
+          </div>
+          <div class="summary-card">
+            <div class="sc-label">Risk Score</div>
+            <div class="sc-value" id="scRisk">—</div>
+            <div class="sc-sub" id="scRiskLevel">—</div>
+          </div>
+        </div>
+
+        <!-- Detailed Results -->
+        <div class="results-details">
+          <h3>Detailed Breakdown</h3>
+          <div class="detail-grid" id="detailGrid">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <!-- Profit Breakdown Chart -->
+        <div class="chart-card">
+          <h3>Profit Breakdown</h3>
+          <div class="chart-wrap"><canvas id="chartBreakdown"></canvas></div>
+          <div class="chart-note">All values shown per completed full cycle. Actual results depend on market volatility and fill frequency.</div>
+        </div>
+
+        <!-- Strategy Comparison Chart -->
+        <div class="chart-card">
+          <h3>Strategy Comparison</h3>
+          <div class="chart-wrap"><canvas id="chartStrategy"></canvas></div>
+          <div class="strategy-verdict" id="strategyVerdict"></div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="risk-card">
+          <h3>Risk Assessment</h3>
+          <div class="risk-header">
+            <div class="risk-score-circle" id="riskCircle">
+              <span class="score-num" id="riskNum">—</span>
+              <span class="score-label" id="riskLabel">—</span>
+            </div>
+            <div class="risk-factors" id="riskFactors">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+          <div class="ai-explanation">
+            <div class="ai-label">🤖 Risk Analysis</div>
+            <div class="ai-text" id="aiText">Complete the calculator above to see your risk analysis.</div>
+          </div>
+          <div class="cycle-reminder">
+            ⚠️ Profit shown is per completed full cycle. A full cycle means every grid level completes one buy-sell pair. Actual frequency depends on market volatility. This tool does not predict returns or provide financial advice.
+          </div>
+        </div>
+
+        <!-- Inline disclaimer -->
+        <p style="font-size:12px; color:var(--text-muted); font-style:italic; text-align:center; padding: 8px 0 0;">
+          Results are based on your inputs and a simplified model. Actual trading results will vary due to market volatility, liquidity, and execution conditions.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     HOW IT WORKS
+     ============================================================ -->
+<section class="how-section" id="how-it-works">
+  <div class="container">
+    <h2 class="section-heading">How It Works</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-num">1</div>
+        <h4>Enter Your Parameters</h4>
+        <p>Set your price range, grid count, investment, fees, and trading mode — or use a quick preset to start.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">2</div>
+        <h4>See Real Costs</h4>
+        <p>View profit after trading fees, slippage, and funding rates. Most calculators hide these — we don't.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">3</div>
+        <h4>Compare &amp; Decide</h4>
+        <p>Compare Grid vs HODL vs DCA side by side. Read the AI-style risk explanation before committing capital.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FAQ
+     ============================================================ -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <h2 class="section-heading">Frequently Asked Questions</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>What is grid trading?</summary>
+        <div class="faq-answer">Grid trading is a strategy that places buy and sell orders at preset price intervals (a "grid") within a defined range. When the price fluctuates within this range, the bot automatically buys low and sells high at each grid level, profiting from volatility rather than direction.</div>
+      </details>
+
+      <details>
+        <summary>How does this calculator work?</summary>
+        <div class="faq-answer">You enter your grid parameters — price range, number of grids, investment amount, and fee rates. The calculator simulates a complete grid cycle and shows your theoretical profit, minus real-world costs like trading fees, slippage, and funding rates. It also compares grid trading with HODL and DCA strategies.</div>
+      </details>
+
+      <details>
+        <summary>Does this calculator connect to any exchange?</summary>
+        <div class="faq-answer">No. This is a purely educational simulation tool. It does not connect to Binance, OKX, Bybit, or any exchange. All calculations run locally in your browser. No data is sent to any server.</div>
+      </details>
+
+      <details>
+        <summary>What is a "full cycle" in the results?</summary>
+        <div class="faq-answer">A full cycle means every grid level completes one buy-sell pair. In reality, how many cycles complete depends on market volatility. Higher volatility within your range means more completed cycles and higher total profit. The calculator shows per-cycle results — not predicted total returns.</div>
+      </details>
+
+      <details>
+        <summary>Why are my net profits so much lower than gross profits?</summary>
+        <div class="faq-answer">Trading fees, slippage, and funding rates (for perpetual contracts) are costs that most basic calculators ignore. In grid trading, these costs multiply because each grid level triggers a trade. With 50 grids, you pay fees on 100 trades (50 buys + 50 sells) per cycle.</div>
+      </details>
+
+      <details>
+        <summary>What happens if the price goes outside my grid range?</summary>
+        <div class="faq-answer">If the price drops below your lower bound, your bot stops buying and you hold assets purchased at higher prices — potentially at a significant unrealized loss. If it goes above your upper bound, you miss out on further upside. This is the primary risk of grid trading.</div>
+      </details>
+
+      <details>
+        <summary>What is slippage and why does it matter?</summary>
+        <div class="faq-answer">Slippage is the difference between the expected price and the actual execution price. In low-liquidity markets or during volatile moments, slippage can significantly reduce each grid's profit. Even 0.05% slippage across 50 grids adds up meaningfully.</div>
+      </details>
+
+      <details>
+        <summary>What are funding rates?</summary>
+        <div class="faq-answer">Funding rates are periodic payments between long and short traders on perpetual futures contracts. If you run a grid bot on perpetual contracts, you may pay funding every 8 hours. This is an ongoing cost that many traders forget to account for. Toggle "Perpetual" mode above to include this cost.</div>
+      </details>
+
+      <details>
+        <summary>Is grid trading better than DCA or HODL?</summary>
+        <div class="faq-answer">It depends on market conditions. Grid trading performs well in sideways, range-bound markets. DCA performs better in steadily declining markets (averaging down your entry). HODL outperforms in strong bull markets. Use the comparison feature above to simulate all three under your own assumptions.</div>
+      </details>
+
+      <details>
+        <summary>Is this financial advice?</summary>
+        <div class="faq-answer">No. This tool is for educational and simulation purposes only. It does not predict future prices, recommend trading pairs, or guarantee results. Always do your own research and only trade with capital you can afford to lose.</div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DISCLAIMER
+     ============================================================ -->
+<section class="disclaimer-section" id="disclaimer">
+  <div class="container">
+    <h2>Disclaimer</h2>
+    <div class="disclaimer-content">
+      <p><strong>GridWise Calculator is provided for educational and informational purposes only. It is NOT financial advice, investment advice, or a trading recommendation.</strong></p>
+      <p><strong>No Guarantees:</strong> Calculations are simplified simulations based entirely on user-supplied inputs. Actual trading results will differ due to market conditions, liquidity, execution timing, exchange-specific rules, and other factors not modeled here.</p>
+      <p><strong>Not a Recommendation:</strong> This tool does not recommend any trading pair, strategy, exchange, or investment action. The mention of any exchange name (e.g., Binance, OKX, Bybit) is solely for contextual reference and does not imply endorsement, partnership, or affiliation.</p>
+      <p><strong>This Tool Does Not Predict Market Prices.</strong> All scenarios use user-entered price assumptions. No prediction, forecast, or guarantee of future price movement is made or implied.</p>
+      <p><strong>Risk Warning:</strong> Cryptocurrency trading involves substantial risk of loss, including total loss of capital. Grid trading, like all trading strategies, can result in partial or total loss of invested capital. Past performance does not guarantee future results. Never trade with money you cannot afford to lose.</p>
+      <p><strong>No Exchange Connection:</strong> This tool does not connect to any cryptocurrency exchange. It does not execute trades, access accounts, or transmit any data. All calculations run entirely in your browser.</p>
+      <p><strong>No Liability:</strong> The creators of GridWise Calculator accept no liability for any financial losses, damages, or consequences resulting from the use of this tool. You are solely responsible for your own trading decisions.</p>
+      <p>By using this tool, you acknowledge that you have read, understood, and agree to this disclaimer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="site-footer">
+  <div class="container">
+    <p>© 2025 GridWise Calculator — For educational purposes only. Not financial advice.</p>
+    <p style="margin-top:6px;"><a href="#faq">FAQ</a> · <a href="#disclaimer">Disclaimer</a> · <a href="#how-it-works">How It Works</a></p>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT — ALL LOGIC
+     ============================================================ -->
+<script>
+/* ==============================================================
+   GLOBALS
+   ============================================================== */
+let breakdownChart = null;
+let strategyChart = null;
+
+/* ==============================================================
+   1. GET INPUTS
+   ============================================================== */
+function getInputs() {
+  const v = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    if (el.tagName === 'SELECT') return el.value;
+    if (el.type === 'number') {
+      const n = parseFloat(el.value);
+      return isNaN(n) ? null : n;
+    }
+    return el.value.trim();
+  };
+  return {
+    tradingPair:  v('tradingPair'),
+    investment:   v('investment'),
+    lowerPrice:   v('lowerPrice'),
+    upperPrice:   v('upperPrice'),
+    currentPrice: v('currentPrice'),
+    endPrice:     v('endPrice'),
+    gridCount:    v('gridCount'),
+    gridType:     v('gridType'),
+    makerFee:     v('makerFee'),
+    takerFee:     v('takerFee'),
+    slippage:     v('slippage'),
+    tradingMode:  v('tradingMode'),
+    fundingRate:  v('fundingRate'),
+    fundingFreq:  parseInt(v('fundingFreq')) || 3,
+    duration:     v('duration'),
+    dcaFrequency: v('dcaFrequency'),
+  };
+}
+
+/* ==============================================================
+   2. VALIDATE INPUTS
+   ============================================================== */
+function validateInputs(p) {
+  const errors = [];
+
+  function setErr(id, msg) {
+    const el = document.getElementById('err-' + id);
+    const inp = document.getElementById(id);
+    if (el) { el.textContent = msg; el.classList.add('visible'); }
+    if (inp) inp.classList.add('error');
+    errors.push(msg);
+  }
+  function clearErr(id) {
+    const el = document.getElementById('err-' + id);
+    const inp = document.getElementById(id);
+    if (el) { el.textContent = ''; el.classList.remove('visible'); }
+    if (inp) inp.classList.remove('error');
+  }
+
+  // Clear all first
+  ['investment','lowerPrice','upperPrice','currentPrice','endPrice',
+   'gridCount','makerFee','takerFee','slippage','fundingRate','duration'
+  ].forEach(clearErr);
+
+  if (p.investment === null || p.investment <= 0)
+    setErr('investment', 'Enter a positive investment amount');
+  else if (p.investment > 10000000)
+    setErr('investment', 'Max investment: $10,000,000');
+
+  if (p.lowerPrice === null || p.lowerPrice <= 0)
+    setErr('lowerPrice', 'Enter a positive lower price');
+
+  if (p.upperPrice === null || p.upperPrice <= 0)
+    setErr('upperPrice', 'Enter a positive upper price');
+  else if (p.lowerPrice !== null && p.upperPrice <= p.lowerPrice)
+    setErr('upperPrice', 'Must be greater than lower price');
+
+  if (p.currentPrice === null || p.currentPrice <= 0)
+    setErr('currentPrice', 'Enter a positive current price');
+
+  if (p.endPrice === null || p.endPrice <= 0)
+    setErr('endPrice', 'Enter a positive end price');
+
+  if (p.gridCount === null || p.gridCount < 2)
+    setErr('gridCount', 'Minimum 2 grids');
+  else if (p.gridCount > 500)
+    setErr('gridCount', 'Maximum 500 grids');
+  else if (!Number.isInteger(p.gridCount))
+    setErr('gridCount', 'Must be a whole number');
+
+  if (p.makerFee === null || p.makerFee < 0 || p.makerFee > 5)
+    setErr('makerFee', 'Must be between 0% and 5%');
+  if (p.takerFee === null || p.takerFee < 0 || p.takerFee > 5)
+    setErr('takerFee', 'Must be between 0% and 5%');
+  if (p.slippage === null || p.slippage < 0 || p.slippage > 5)
+    setErr('slippage', 'Must be between 0% and 5%');
+
+  if (p.tradingMode === 'Perpetual') {
+    if (p.fundingRate === null || p.fundingRate < -0.5 || p.fundingRate > 0.5)
+      setErr('fundingRate', 'Must be between -0.5% and 0.5%');
+  }
+
+  if (p.duration === null || p.duration < 1 || p.duration > 365)
+    setErr('duration', 'Duration: 1–365 days');
+
+  return { valid: errors.length === 0, errors };
+}
+
+/* ==============================================================
+   3. CALCULATE GRID PROFIT
+   ============================================================== */
+function calculateGridProfit(p) {
+  const { investment, lowerPrice, upperPrice, gridCount, gridType } = p;
+  const gridPrices = [];
+
+  if (gridType === 'Geometric') {
+    const ratio = Math.pow(upperPrice / lowerPrice, 1 / gridCount);
+    for (let i = 0; i <= gridCount; i++) {
+      gridPrices.push(lowerPrice * Math.pow(ratio, i));
+    }
+  } else {
+    const step = (upperPrice - lowerPrice) / gridCount;
+    for (let i = 0; i <= gridCount; i++) {
+      gridPrices.push(lowerPrice + i * step);
+    }
+  }
+
+  const investPerGrid = investment / gridCount;
+  let grossProfit = 0;
+
+  for (let i = 0; i < gridCount; i++) {
+    const buyP = gridPrices[i];
+    const sellP = gridPrices[i + 1];
+    const qty = investPerGrid / buyP;
+    grossProfit += qty * (sellP - buyP);
+  }
+
+  const gridSpacing = gridType === 'Geometric'
+    ? ((Math.pow(upperPrice / lowerPrice, 1 / gridCount) - 1) * 100).toFixed(4) + '%'
+    : '$' + fmt((upperPrice - lowerPrice) / gridCount);
+
+  return { grossProfit, gridPrices, gridSpacing };
+}
+
+/* ==============================================================
+   4. CALCULATE COSTS
+   ============================================================== */
+function calculateCosts(p, gridPrices) {
+  const { investment, gridCount, makerFee, takerFee, slippage,
+          tradingMode, fundingRate, fundingFreq, duration } = p;
+
+  const makerR = makerFee / 100;
+  const takerR = takerFee / 100;
+  const slipR  = slippage / 100;
+  const investPerGrid = investment / gridCount;
+
+  let totalFees = 0;
+  let totalSlippage = 0;
+
+  for (let i = 0; i < gridCount; i++) {
+    const buyP  = gridPrices[i];
+    const sellP = gridPrices[i + 1];
+    const qty   = investPerGrid / buyP;
+
+    // Fees: buy = taker, sell = maker (simplified)
+    totalFees += investPerGrid * takerR;          // buy fee
+    totalFees += qty * sellP * makerR;            // sell fee
+
+    // Slippage: buy higher, sell lower
+    if (slipR > 0) {
+      const idealProfit = qty * (sellP - buyP);
+      const adjBuyP  = buyP * (1 + slipR);
+      const adjSellP = sellP * (1 - slipR);
+      const adjQty   = investPerGrid / adjBuyP;
+      const adjProfit = adjQty * (adjSellP - adjBuyP);
+      totalSlippage += Math.max(0, idealProfit - adjProfit);
+    }
+  }
+
+  // Funding cost (Perpetual only)
+  let fundingCost = 0;
+  if (tradingMode === 'Perpetual' && fundingRate !== null) {
+    const frDecimal = fundingRate / 100;
+    const costPerSettlement = investment * Math.abs(frDecimal);
+    fundingCost = costPerSettlement * fundingFreq * duration;
+    // If funding rate is negative (shorts pay longs), it could be income for long grid
+    if (fundingRate < 0) fundingCost = -fundingCost; // negative = income
+  }
+
+  return {
+    totalFees: totalFees,
+    slippageCost: totalSlippage,
+    fundingCost: fundingCost,
+    totalCostsSigned: totalFees + totalSlippage + fundingCost,
+    totalCostOutflow: totalFees + totalSlippage + Math.max(0, fundingCost),
+  };
+}
+
+/* ==============================================================
+   5. CALCULATE HODL
+   ============================================================== */
+function calculateHODL(p) {
+  const { investment, currentPrice, endPrice, makerFee, takerFee } = p;
+  const buyFee = investment * (takerFee / 100);
+  const actualInv = investment - buyFee;
+  const qty = actualInv / currentPrice;
+  const endVal = qty * endPrice;
+  const sellFee = endVal * (makerFee / 100);
+  const netVal = endVal - sellFee;
+  const profit = netVal - investment;
+  const roi = (profit / investment) * 100;
+  return { hodlProfit: profit, hodlROI: roi };
+}
+
+/* ==============================================================
+   6. CALCULATE DCA
+   ============================================================== */
+function calculateDCA(p) {
+  const { investment, currentPrice, endPrice, duration,
+          dcaFrequency, takerFee, makerFee } = p;
+
+  const freqMap = { Daily: 1, Weekly: 7, Monthly: 30 };
+  const interval = freqMap[dcaFrequency] || 1;
+  const numBuys = Math.max(1, Math.floor(duration / interval));
+  const amtPerBuy = investment / numBuys;
+  const feeR = takerFee / 100;
+
+  let totalQty = 0;
+  let totalFees = 0;
+
+  for (let i = 0; i < numBuys; i++) {
+    // Linear price path from currentPrice to endPrice
+    const t = numBuys > 1 ? i / (numBuys - 1) : 0;
+    const priceAtBuy = currentPrice + (endPrice - currentPrice) * t;
+    const fee = amtPerBuy * feeR;
+    totalQty += (amtPerBuy - fee) / priceAtBuy;
+    totalFees += fee;
+  }
+
+  const endVal = totalQty * endPrice;
+  const sellFee = endVal * (makerFee / 100);
+  const profit = endVal - sellFee - investment;
+  const roi = (profit / investment) * 100;
+
+  return { dcaProfit: profit, dcaROI: roi, dcaAvgPrice: investment / totalQty, numBuys };
+}
+
+/* ==============================================================
+   7. CALCULATE RISK SCORE
+   ============================================================== */
+function calculateRiskScore(p, grossProfit, totalCosts, netProfit) {
+  const { lowerPrice, upperPrice, currentPrice, gridCount,
+          investment, tradingMode, fundingRate, duration, slippage } = p;
+
+  let score = 0;
+
+  // F1: Cost-to-Profit Ratio (0-25)
+  const costRatio = grossProfit > 0 ? Math.max(0, (totalCosts / grossProfit) * 100) : 100;
+  if (costRatio >= 80)      score += 25;
+  else if (costRatio >= 60) score += 20;
+  else if (costRatio >= 40) score += 15;
+  else if (costRatio >= 20) score += 8;
+  else                      score += 3;
+
+  // F2: Range Breakout / Distance (0-25)
+  let isBreakout = false;
+  let breakoutDir = null;
+  if (currentPrice < lowerPrice) {
+    score += 25; isBreakout = true; breakoutDir = 'below';
+  } else if (currentPrice > upperPrice) {
+    score += 25; isBreakout = true; breakoutDir = 'above';
+  } else {
+    const rangeW = upperPrice - lowerPrice;
+    const minDist = Math.min(currentPrice - lowerPrice, upperPrice - currentPrice);
+    const tightness = (minDist / rangeW) * 100;
+    if (tightness < 10)      score += 20;
+    else if (tightness < 20) score += 15;
+    else if (tightness < 30) score += 10;
+    else if (tightness < 40) score += 5;
+    else                     score += 2;
+  }
+
+  // F3: Grid Density (0-15)
+  const pPerGrid = grossProfit / gridCount;
+  const cPerGrid = totalCosts / gridCount;
+  const eff = pPerGrid > 0 ? cPerGrid / pPerGrid : 1;
+  if (eff > 0.8)      score += 15;
+  else if (eff > 0.5) score += 10;
+  else if (eff > 0.3) score += 6;
+  else                 score += 2;
+
+  // F4: Perpetual Risk (0-15)
+  if (tradingMode === 'Perpetual') {
+    score += 5;
+    const fr = Math.abs(fundingRate || 0);
+    if (fr > 0.03)      score += 10;
+    else if (fr > 0.01) score += 5;
+    else                 score += 2;
+  }
+
+  // F5: Duration (0-10)
+  if (duration > 180)      score += 10;
+  else if (duration > 90)  score += 7;
+  else if (duration > 30)  score += 4;
+  else                     score += 1;
+
+  // F6: Net Loss (0-10)
+  if (netProfit < 0) score += 10;
+  else if (netProfit < investment * 0.01) score += 5;
+
+  score = Math.min(100, Math.max(0, score));
+
+  let level, color;
+  if (score <= 25)      { level = 'Low';       color = '#22c55e'; }
+  else if (score <= 50) { level = 'Medium';    color = '#eab308'; }
+  else if (score <= 75) { level = 'High';      color = '#f97316'; }
+  else                  { level = 'Very High'; color = '#ef4444'; }
+
+  return { score, level, color, isBreakout, breakoutDir, costRatio };
+}
+
+/* ==============================================================
+   8. GENERATE RISK EXPLANATION
+   ============================================================== */
+function generateRiskExplanation(d) {
+  const lines = [];
+
+  // Opener
+  const openers = {
+    'Low':       'This grid setup has a relatively balanced risk-reward profile.',
+    'Medium':    'This setup carries moderate risk — several cost factors may reduce your actual returns.',
+    'High':      '⚠️ This setup carries significant risk. Costs are consuming a large portion of potential profits.',
+    'Very High': '🚨 Warning: This configuration is very high risk. There is a strong chance of net loss after all costs.',
+  };
+  lines.push(openers[d.riskLevel] || openers['Medium']);
+
+  // Range breakout
+  if (d.isBreakout && d.breakoutDir === 'below') {
+    lines.push(
+      'The current price ($' + fmt(d.currentPrice) + ') is below your grid range. ' +
+      'Your bot would be inactive and you would be holding assets bought at higher prices. ' +
+      'This is the most common way grid traders incur large losses.'
+    );
+  } else if (d.isBreakout && d.breakoutDir === 'above') {
+    lines.push(
+      'The current price ($' + fmt(d.currentPrice) + ') is above your grid range. ' +
+      'Your bot has sold all assets and you are missing further upside. ' +
+      'Consider whether the range needs adjustment.'
+    );
+  }
+
+  // Cost ratio
+  if (d.costRatio > 60) {
+    lines.push(
+      'Trading costs consume approximately ' + d.costRatio.toFixed(0) + '% of ' +
+      'your theoretical profit — leaving razor-thin margins. Even small market changes could push this into a net loss.'
+    );
+  } else if (d.costRatio > 30) {
+    lines.push(
+      'About ' + d.costRatio.toFixed(0) + '% of gross profit goes toward costs. ' +
+      'This is manageable, but reducing fees or grid count would improve margins.'
+    );
+  }
+
+  // Fees
+  if (d.grossProfit > 0 && d.totalFees > d.grossProfit * 0.3) {
+    lines.push(
+      'Fees alone total $' + fmt(d.totalFees) + ' — ' +
+      ((d.totalFees / d.grossProfit) * 100).toFixed(0) + '% of gross profit. ' +
+      'With ' + d.gridCount + ' grids, each triggers a buy-sell pair, multiplying fee impact. Consider fewer grids or a lower fee tier.'
+    );
+  }
+
+  // Slippage
+  if (d.grossProfit > 0 && d.slippageCost > d.grossProfit * 0.1) {
+    lines.push(
+      'Slippage accounts for $' + fmt(d.slippageCost) + ' (' +
+      ((d.slippageCost / d.grossProfit) * 100).toFixed(0) + '% of gross profit). ' +
+      'Low-liquidity pairs or volatile moments increase slippage.'
+    );
+  }
+
+  // Funding
+  if (d.tradingMode === 'Perpetual' && d.fundingCost > 0) {
+    lines.push(
+      'Over ' + d.duration + ' days, funding payments total ~$' + fmt(d.fundingCost) + '. ' +
+      'This ongoing cost accumulates silently. Monitor funding rates — they shift with market sentiment.'
+    );
+  } else if (d.tradingMode === 'Perpetual' && d.fundingCost < 0) {
+    lines.push(
+      'Funding rate is negative, meaning you would receive ~$' + fmt(Math.abs(d.fundingCost)) +
+      ' over ' + d.duration + ' days. Note that funding rates fluctuate and this income is not guaranteed.'
+    );
+  }
+
+  // Grid density
+  if (d.gridCount > 80) {
+    lines.push(
+      d.gridCount + ' grids means very thin profit per grid. Each grid must overcome its own fee and slippage cost before contributing profit.'
+    );
+  }
+
+  // Net loss
+  if (d.netProfit < 0) {
+    lines.push(
+      '📉 After all costs, this setup results in a net loss of $' + fmt(Math.abs(d.netProfit)) +
+      ' per full cycle. Consider widening grid spacing, reducing grids, or lowering fee rates.'
+    );
+  }
+
+  // Closing
+  lines.push(
+    'This is a simulation — not a prediction. Actual results depend on market volatility, liquidity, and grid fill frequency. This tool does not provide financial advice.'
+  );
+
+  return lines.join('\n\n');
+}
+
+/* ==============================================================
+   9. RENDER RESULTS
+   ============================================================== */
+function renderResults(r) {
+  const panel = document.getElementById('outputPanel');
+  panel.classList.add('visible');
+
+  // --- Breakout Warning ---
+  const bw = document.getElementById('breakoutWarning');
+  bw.className = 'breakout-warning'; // reset
+  if (r.risk.isBreakout) {
+    const dir = r.risk.breakoutDir;
+    bw.classList.add(dir === 'below' ? 'below-range' : 'above-range');
+    document.getElementById('bwTitle').textContent =
+      dir === 'below' ? '⚠️ Price Below Grid Range' : '⚠️ Price Above Grid Range';
+    document.getElementById('bwText').textContent =
+      dir === 'below'
+        ? 'Current price ($' + fmt(r.params.currentPrice) + ') is below your lower bound ($' + fmt(r.params.lowerPrice) + '). Your grid bot would be inactive — no trades are being executed. You are holding assets bought at higher prices, resulting in unrealized losses. Grid profit below assumes price returns to within range.'
+        : 'Current price ($' + fmt(r.params.currentPrice) + ') is above your upper bound ($' + fmt(r.params.upperPrice) + '). Your bot has sold all assets and you are missing further upside. Grid profit below assumes price returns to within range.';
+  }
+
+  // --- Summary Cards ---
+  document.getElementById('scGross').textContent = '$' + fmt(r.grossProfit);
+
+  const scCosts = document.getElementById('scCosts');
+  scCosts.textContent = '-$' + fmt(r.totalCostOutflow);
+
+  const scNet = document.getElementById('scNet');
+  scNet.textContent = (r.netProfit >= 0 ? '$' : '-$') + fmt(Math.abs(r.netProfit));
+  scNet.className = 'sc-value ' + (r.netProfit >= 0 ? 'sc-positive' : 'sc-negative');
+
+  const gridROI = r.params.investment > 0 ? (r.netProfit / r.params.investment) * 100 : 0;
+  document.getElementById('scNetSub').textContent =
+    'ROI: ' + gridROI.toFixed(2) + '% per cycle';
+
+  const scRisk = document.getElementById('scRisk');
+  scRisk.innerHTML = '<span class="risk-badge-inline" style="background:' +
+    r.risk.color + '20; color:' + r.risk.color + ';">' +
+    r.risk.score + ' / 100</span>';
+  document.getElementById('scRiskLevel').textContent = r.risk.level + ' Risk';
+  document.getElementById('scRiskLevel').style.color = r.risk.color;
+
+  // --- Detailed Grid ---
+  const dg = document.getElementById('detailGrid');
+  const rows = [
+    ['Grid Spacing', r.gridSpacing],
+    ['Grid Type', r.params.gridType],
+    ['Gross Profit / Cycle', '$' + fmt(r.grossProfit)],
+    ['Total Fees', '-$' + fmt(r.totalFees)],
+    ['Slippage Cost', '-$' + fmt(r.slippageCost)],
+    [r.params.tradingMode === 'Perpetual' && r.fundingCost < 0 ? 'Funding Income' : 'Funding Cost',
+      r.params.tradingMode === 'Perpetual'
+        ? (r.fundingCost >= 0 ? '-$' : '+$') + fmt(Math.abs(r.fundingCost))
+        : '$0.00 (Spot)'],
+    ['Total Costs', '-$' + fmt(r.totalCostOutflow)],
+    ['Net Profit / Cycle', (r.netProfit >= 0 ? '$' : '-$') + fmt(Math.abs(r.netProfit))],
+    ['Cost-to-Profit Ratio', r.risk.costRatio.toFixed(1) + '%'],
+    ['Grid ROI / Cycle', gridROI.toFixed(2) + '%'],
+    ['HODL Profit', (r.hodl.hodlProfit >= 0 ? '$' : '-$') + fmt(Math.abs(r.hodl.hodlProfit))],
+    ['HODL ROI', r.hodl.hodlROI.toFixed(2) + '%'],
+    ['DCA Profit', (r.dca.dcaProfit >= 0 ? '$' : '-$') + fmt(Math.abs(r.dca.dcaProfit))],
+    ['DCA ROI', r.dca.dcaROI.toFixed(2) + '%'],
+  ];
+  dg.innerHTML = rows.map(([label, val]) =>
+    '<div class="detail-item"><span class="di-label">' + label +
+    '</span><span class="di-value">' + val + '</span></div>'
+  ).join('');
+
+  // --- Chart: Profit Breakdown ---
+  renderBreakdownChart(r);
+
+  // --- Chart: Strategy Comparison ---
+  renderStrategyChart(r);
+
+  // --- Risk Assessment ---
+  const rc = document.getElementById('riskCircle');
+  rc.style.borderColor = r.risk.color;
+  rc.style.color = r.risk.color;
+  document.getElementById('riskNum').textContent = r.risk.score;
+  document.getElementById('riskLabel').textContent = r.risk.level;
+
+  // Risk factors
+  const factors = [];
+  if (r.risk.isBreakout) factors.push({ text: 'Range Breakout', color: '#ef4444' });
+  if (r.risk.costRatio > 40) factors.push({ text: 'High Cost Ratio', color: '#f97316' });
+  if (r.params.gridCount > 80) factors.push({ text: 'Dense Grid', color: '#eab308' });
+  if (r.params.tradingMode === 'Perpetual') factors.push({ text: 'Perpetual Mode', color: '#a855f7' });
+  if (r.netProfit < 0) factors.push({ text: 'Net Loss', color: '#ef4444' });
+  if (r.params.slippage > 0.08) factors.push({ text: 'High Slippage', color: '#f97316' });
+  if (r.params.duration > 90) factors.push({ text: 'Long Duration', color: '#eab308' });
+  if (r.fundingCost < 0) factors.push({ text: 'Funding Income', color: '#22c55e' });
+
+  const rfEl = document.getElementById('riskFactors');
+  rfEl.innerHTML = factors.map(f =>
+    '<span class="risk-factor-tag" style="color:' + f.color +
+    ';border-color:' + f.color + '30;background:' + f.color + '10;">' +
+    f.text + '</span>'
+  ).join('');
+
+  // AI explanation
+  document.getElementById('aiText').textContent = r.explanation;
+
+  // Scroll to results
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ==============================================================
+   CHART RENDERERS
+   ============================================================== */
+function renderBreakdownChart(r) {
+  const ctx = document.getElementById('chartBreakdown').getContext('2d');
+  if (breakdownChart) breakdownChart.destroy();
+
+  const labels = ['Gross Profit', 'Fees', 'Slippage'];
+  const data   = [r.grossProfit, -r.totalFees, -r.slippageCost];
+  const colors = ['#22c55e', '#ef4444', '#f97316'];
+
+  if (r.params.tradingMode === 'Perpetual') {
+    if (r.fundingCost >= 0) {
+      labels.push('Funding Cost');
+      data.push(-r.fundingCost);
+      colors.push('#8b5cf6');
+    } else {
+      labels.push('Funding Income');
+      data.push(Math.abs(r.fundingCost));
+      colors.push('#22c55e');
+    }
+  }
+
+  labels.push('Net Profit');
+  data.push(r.netProfit);
+  colors.push(r.netProfit >= 0 ? '#10b981' : '#ef4444');
+
+  breakdownChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderRadius: 4,
+        maxBarThickness: 56,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const v = ctx.parsed.y;
+              return (v >= 0 ? '$' : '-$') + fmt(Math.abs(v));
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(v) { return (v >= 0 ? '$' : '-$') + Math.abs(v).toFixed(0); }
+          },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderStrategyChart(r) {
+  const ctx = document.getElementById('chartStrategy').getContext('2d');
+  if (strategyChart) strategyChart.destroy();
+
+  strategyChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Grid Trading', 'HODL', 'DCA'],
+      datasets: [{
+        label: 'Profit / Loss ($)',
+        data: [r.netProfit, r.hodl.hodlProfit, r.dca.dcaProfit],
+        backgroundColor: [
+          r.netProfit >= 0 ? '#22c55e' : '#ef4444',
+          r.hodl.hodlProfit >= 0 ? '#3b82f6' : '#ef4444',
+          r.dca.dcaProfit >= 0 ? '#f59e0b' : '#ef4444',
+        ],
+        borderRadius: 4,
+        maxBarThickness: 72,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const v = ctx.parsed.y;
+              return (v >= 0 ? '$' : '-$') + fmt(Math.abs(v));
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(v) { return (v >= 0 ? '$' : '-$') + Math.abs(v).toFixed(0); }
+          },
+          grid: { color: '#f0f0f0' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Strategy verdict
+  const profits = [
+    { name: 'Grid Trading', val: r.netProfit },
+    { name: 'HODL',         val: r.hodl.hodlProfit },
+    { name: 'DCA',          val: r.dca.dcaProfit },
+  ];
+  profits.sort((a, b) => b.val - a.val);
+  const best = profits[0];
+  const second = profits[1];
+  const diff = best.val - second.val;
+
+  let verdict = '';
+  if (diff < 0.01 && diff > -0.01) {
+    verdict = 'In this scenario, all strategies produce similar results.';
+  } else {
+    verdict = 'In this scenario, <strong>' + best.name + '</strong> outperforms ' +
+              second.name + ' by <strong>$' + fmt(diff) + '</strong>.';
+    if (best.name === 'Grid Trading') {
+      verdict += ' Grid trading profits from volatility within the range.';
+    } else if (best.name === 'HODL') {
+      verdict += ' In trending markets, holding often beats active strategies due to lower costs.';
+    } else {
+      verdict += ' DCA benefits from averaging into a favorable price over time.';
+    }
+  }
+  document.getElementById('strategyVerdict').innerHTML = verdict;
+}
+
+/* ==============================================================
+   FORMAT HELPER
+   ============================================================== */
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return '0.00';
+  if (!isFinite(n)) return '0.00';
+  return Math.abs(n).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+/* ==============================================================
+   MAIN CALCULATE FUNCTION
+   ============================================================== */
+function calculate() {
+  const params = getInputs();
+  const validation = validateInputs(params);
+  if (!validation.valid) return;
+
+  // Run calculations
+  const gridResult = calculateGridProfit(params);
+  const costs = calculateCosts(params, gridResult.gridPrices);
+  const netProfit = gridResult.grossProfit - costs.totalCostsSigned;
+  const hodl = calculateHODL(params);
+  const dca = calculateDCA(params);
+  const risk = calculateRiskScore(params, gridResult.grossProfit, costs.totalCostOutflow, netProfit);
+
+  const explanationData = {
+    riskLevel: risk.level,
+    riskScore: risk.score,
+    costRatio: risk.costRatio,
+    netProfit: netProfit,
+    grossProfit: gridResult.grossProfit,
+    totalFees: costs.totalFees,
+    slippageCost: costs.slippageCost,
+    fundingCost: costs.fundingCost,
+    tradingMode: params.tradingMode,
+    currentPrice: params.currentPrice,
+    lowerPrice: params.lowerPrice,
+    upperPrice: params.upperPrice,
+    gridCount: params.gridCount,
+    investment: params.investment,
+    duration: params.duration,
+    isBreakout: risk.isBreakout,
+    breakoutDir: risk.breakoutDir,
+  };
+  const explanation = generateRiskExplanation(explanationData);
+
+  renderResults({
+    params,
+    grossProfit: gridResult.grossProfit,
+    gridSpacing: gridResult.gridSpacing,
+    totalFees: costs.totalFees,
+    slippageCost: costs.slippageCost,
+    fundingCost: costs.fundingCost,
+    totalCostsSigned: costs.totalCostsSigned,
+    totalCostOutflow: costs.totalCostOutflow,
+    netProfit,
+    hodl,
+    dca,
+    risk,
+    explanation,
+  });
+}
+
+/* ==============================================================
+   PRESETS
+   ============================================================== */
+const PRESETS = {
+  conservative: {
+    investment: 1000, lowerPrice: 2900, upperPrice: 3300, currentPrice: 3100,
+    endPrice: 3100, gridCount: 20, gridType: 'Arithmetic',
+    makerFee: 0.10, takerFee: 0.10, slippage: 0.03,
+    tradingMode: 'Spot', fundingRate: 0.01, fundingFreq: '3',
+    duration: 30, dcaFrequency: 'Daily',
+  },
+  moderate: {
+    investment: 3000, lowerPrice: 2500, upperPrice: 3800, currentPrice: 3100,
+    endPrice: 3300, gridCount: 40, gridType: 'Arithmetic',
+    makerFee: 0.10, takerFee: 0.10, slippage: 0.05,
+    tradingMode: 'Spot', fundingRate: 0.01, fundingFreq: '3',
+    duration: 30, dcaFrequency: 'Daily',
+  },
+  aggressive: {
+    investment: 10000, lowerPrice: 2000, upperPrice: 4500, currentPrice: 3100,
+    endPrice: 3500, gridCount: 100, gridType: 'Geometric',
+    makerFee: 0.10, takerFee: 0.10, slippage: 0.08,
+    tradingMode: 'Perpetual', fundingRate: 0.01, fundingFreq: '3',
+    duration: 60, dcaFrequency: 'Daily',
+  },
+};
+
+function applyPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+
+  Object.keys(p).forEach(key => {
+    const el = document.getElementById(key);
+    if (el) el.value = p[key];
+  });
+
+  // Update UI state for trading mode
+  toggleFundingFields();
+
+  // Highlight active preset
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === name);
+  });
+}
+
+/* ==============================================================
+   TOGGLE FUNDING FIELDS
+   ============================================================== */
+function toggleFundingFields() {
+  const mode = document.getElementById('tradingMode').value;
+  const ff = document.getElementById('fundingFields');
+  ff.classList.toggle('visible', mode === 'Perpetual');
+
+  // Auto-open advanced section if Perpetual selected
+  if (mode === 'Perpetual') {
+    document.getElementById('advFields').classList.add('open');
+    document.getElementById('advToggle').classList.add('open');
+  }
+}
+
+/* ==============================================================
+   EVENT LISTENERS
+   ============================================================== */
+document.addEventListener('DOMContentLoaded', function() {
+  // Calculate button
+  document.getElementById('calcBtn').addEventListener('click', calculate);
+
+  // Preset buttons
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      applyPreset(this.dataset.preset);
+    });
+  });
+
+  // Advanced toggle
+  document.getElementById('advToggle').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('advFields').classList.toggle('open');
+  });
+
+  // Trading mode toggle
+  document.getElementById('tradingMode').addEventListener('change', toggleFundingFields);
+
+  // Initialize funding field visibility
+  toggleFundingFields();
+
+  // Clear errors on input
+  document.querySelectorAll('.input-panel input, .input-panel select').forEach(el => {
+    el.addEventListener('input', function() {
+      this.classList.remove('error');
+      const errEl = document.getElementById('err-' + this.id);
+      if (errEl) { errEl.textContent = ''; errEl.classList.remove('visible'); }
+      // Clear active preset when user edits
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    });
+  });
+
+  // Allow Enter key to trigger calculation
+  document.querySelectorAll('.input-panel input').forEach(el => {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') calculate();
+    });
+  });
+});
+</script>
+</body>
+</html>
